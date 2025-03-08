@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Restaurants</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Restaurants</h1>
+  <div id="restaurant-container" class="grid"></div>
+
+  <script>
+    // Load data.json and display restaurant buttons
+    fetch('nutrition.json')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('restaurant-container');
+        data.restaurants.forEach(restaurant => {
+          const button = document.createElement('button');
+          button.textContent = restaurant.name;
+          button.onclick = () => {
+            window.location.href = 'menu.html?restaurant=' + restaurant.id;
+          };
+          container.appendChild(button);
+        });
+      })
+      .catch(error => console.error('Error loading data:', error));
+  </script>
+</body>
+</html>

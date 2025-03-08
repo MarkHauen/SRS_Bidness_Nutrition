@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1 id="restaurant-name">Menu</h1>
+  <div id="accordion-container"></div>
+
+  <script>
+    // Helper: Get query parameter value by name
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const restaurantId = getQueryParam('restaurant');
+
+    fetch('nutrition.json')
+      .then(response => response.json())
+      .then(data => {
+        // Find the restaurant and set the header
+        const restaurant = data.restaurants.find(r => r.id == restaurantId);
+        if (restaurant) {
+          document.getElementById('restaurant-name').textContent = restaurant.name + ' Menu';
+        }
+
+        // Filter food items for this restaurant
+        const items = data.food_items.filter(item => item.restaurant_id == restaurantId);
+
+        // Group items by category
+        const groups = {};
+        items.forEach(item => {
+          if (!groups[item.food_category]) {
+            groups[item.food_category] = [];
+          }
+          groups[item.food_category].push(item);
+        });
+
+        const container = document.getElementById('accordion-container');
+        // Create accordion sections for each category
+        for (let category in groups) {
+          const section = document.createElement('div');
+          section.className = 'accordion-section';
+
+          // Accordion header
+          const header = document.createElement('div');
+          header.className = 'accordion-header';
+          header.textContent = category;
+          header.onclick = function() {
+            content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+          };
+
+          // Accordion content container
+          const content = document.createElement('div');
+          content.className = 'accordion-content';
+          content.style.display = 'none';
+
+          groups[category].forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-item';
+            itemDiv.textContent = item.item_name;
+            itemDiv.onclick = () => {
+              window.location.href = 'item.html?item=' + item.id;
+            };
+            content.appendChild(itemDiv);
+          });
+
+          section.appendChild(header);
+          section.appendChild(content);
+          container.appendChild(section);
+        }
+      })
+      .catch(error => console.error('Error loading data:', error));
+  </script>
+</body>
+</html>

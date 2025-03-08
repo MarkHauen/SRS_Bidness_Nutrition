@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nutrition Information</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1 id="item-name">Item Details</h1>
+  <div id="item-details"></div>
+
+  <script>
+    // Helper: Get query parameter value by name
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const itemId = getQueryParam('item');
+
+    fetch('nutrition.json')
+      .then(response => response.json())
+      .then(data => {
+        const item = data.food_items.find(i => i.id == itemId);
+        if (item) {
+          document.getElementById('item-name').textContent = item.item_name;
+          const detailsContainer = document.getElementById('item-details');
+          const ul = document.createElement('ul');
+
+          // Define which fields to show
+          const fields = {
+            'Description': item.item_description,
+            'Calories': item.calories,
+            'Total Fat': item.total_fat,
+            'Sodium': item.sodium,
+            'Carbohydrates': item.carbohydrates,
+            'Protein': item.protein
+          };
+
+          for (let key in fields) {
+            const li = document.createElement('li');
+            li.textContent = key + ': ' + fields[key];
+            ul.appendChild(li);
+          }
+          detailsContainer.appendChild(ul);
+        } else {
+          document.getElementById('item-name').textContent = 'Item not found';
+        }
+      })
+      .catch(error => console.error('Error loading data:', error));
+  </script>
+</body>
+</html>
